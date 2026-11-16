@@ -282,13 +282,9 @@
     const copyUrlBtn = document.getElementById('copy-url-btn');
     const copyUrlText = document.getElementById('copy-url-text');
 
-    async function copyToClipboard(text) {
-      if (navigator.clipboard && window.isSecureContext) {
-        try {
-          await navigator.clipboard.writeText(text);
-          return true;
-        } catch (e) {}
-      }
+    // Copy siêu tốc không qua async/await để giữ nguyên quyền User Gesture cho Zalo/Safari
+    function copyInstant(text) {
+      // 1. Thử qua textarea (Đồng bộ - Sync 100%)
       try {
         const t = document.createElement("textarea");
         t.value = text;
@@ -298,69 +294,67 @@
         t.setAttribute("readonly", "");
         document.body.appendChild(t);
         t.select();
-        const ok = document.execCommand("copy");
+        document.execCommand("copy");
         document.body.removeChild(t);
-        return ok;
-      } catch (e) {
-        return false;
+      } catch (e) {}
+
+      // 2. Chạy kèm Clipboard API nếu hỗ trợ
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(() => {});
       }
     }
 
     function openReel() {
       const reelId = "2646908909088780";
-      const fbUrl = config.facebookPostUrl || `https://www.facebook.com/reel/${reelId}`;
+      const fbWebUrl = `https://www.facebook.com/reel/${reelId}`;
+      const fbAppUrl = `fb://reel/${reelId}`;
       const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
       const isAndroid = /android/i.test(ua);
-      const isIOS = /iphone|ipad|ipod/i.test(ua);
 
       if (isAndroid) {
-        // Trên Android (đặc biệt trong Zalo/Messenger/Chrome):
-        // Dùng Android Intent chỉ định trực tiếp app Facebook và đường dẫn Reel chính xác.
-        // Tuyệt đối không dùng fb://facewebmodal vì nó bị Facebook đẩy về trang chủ (Newsfeed).
-        const intentUrl = `intent://www.facebook.com/reel/${reelId}#Intent;package=com.facebook.katana;scheme=https;S.browser_fallback_url=${encodeURIComponent(fbUrl)};end`;
-        window.location.href = intentUrl;
-      } else if (isIOS) {
-        // Trên iPhone/iPad: Dùng deep link trực tiếp đến Reel của Facebook App
-        const iosDeepLink = `fb://reel/${reelId}`;
-        const start = Date.now();
-        window.location.href = iosDeepLink;
-        setTimeout(() => {
-          if (Date.now() - start < 1500) {
-            window.location.href = fbUrl;
-          }
-        }, 1200);
+        // Trên Android: Dùng scheme=fb để Zalo KHÔNG THỂ mở bằng trình duyệt webview trong Zalo
+        // mà bắt buộc phải chuyển sang ứng dụng Facebook
+        const intentFb = `intent://reel/${reelId}#Intent;package=com.facebook.katana;scheme=fb;end`;
+        window.location.href = intentFb;
       } else {
-        window.open(fbUrl, '_blank') || (window.location.href = fbUrl);
+        // Trên iPhone (iOS): Gọi trực tiếp giao thức fb://reel/
+        window.location.href = fbAppUrl;
       }
+
+      // Fallback chỉ chạy nếu người dùng KHÔNG rời khỏi trang sau 2.5 giây
+      setTimeout(() => {
+        if (document.hasFocus()) {
+          window.location.href = fbWebUrl;
+        }
+      }, 2500);
     }
 
     let clicked = false;
-    mainVoteBtn.addEventListener('click', async () => {
+    mainVoteBtn.addEventListener('click', () => {
       if (clicked) return;
       clicked = true;
 
+      // 1. Rung máy & bắn pháo hoa
       if (navigator.vibrate) navigator.vibrate([30, 45, 30]);
-
       if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 55,
-          spread: 70,
-          origin: { y: 0.7 }
-        });
+        confetti({ particleCount: 55, spread: 70, origin: { y: 0.7 } });
       }
 
-      await copyToClipboard(config.copyContent);
+      // 2. Sao chép ngay lập tức (Sync - không bị mất quyền user gesture)
+      copyInstant(config.copyContent);
+
+      // 3. Hiển thị thông báo trạng thái
       statusBox.classList.remove('hidden');
       if (typeof lucide !== 'undefined') lucide.createIcons();
 
-      setTimeout(() => {
-        openReel();
-        clicked = false;
-      }, 650);
+      // 4. Mở app ngay lập tức trong cùng 1 lần chạm (không delay)
+      openReel();
+
+      setTimeout(() => { clicked = false; }, 1500);
     });
 
-    copyPreviewBtn.addEventListener('click', async () => {
-      await copyToClipboard(config.copyContent);
+    copyPreviewBtn.addEventListener('click', () => {
+      copyInstant(config.copyContent);
       copyPreviewText.textContent = "Đã chép!";
       copyPreviewBtn.classList.add('text-emerald-300', 'border-emerald-500/50');
       setTimeout(() => {
@@ -401,8 +395,8 @@
       }
     });
 
-    copyUrlBtn.addEventListener('click', async () => {
-      await copyToClipboard(window.location.href.split('#')[0]);
+    copyUrlBtn.addEventListener('click', () => {
+      copyInstant(window.location.href.split('#')[0]);
       copyUrlText.textContent = "Đã chép!";
       setTimeout(() => copyUrlText.textContent = "Copy Link", 2000);
     });
