@@ -10,13 +10,13 @@
   <meta property="og:image" content="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80">
   <meta name="theme-color" content="#0b0f19">
 
-  <!-- Meta App Links for Facebook Deep Linking -->
-  <meta property="al:ios:url" content="fb://watch/?v=2646908909088780">
-  <meta property="al:ios:app_store_id" content="284882215">
-  <meta property="al:ios:app_name" content="Facebook">
-  <meta property="al:android:url" content="fb://watch/?v=2646908909088780">
-  <meta property="al:android:package" content="com.facebook.katana">
-  <meta property="al:android:app_name" content="Facebook">
+  <!-- Meta App Links directly from Facebook Reel OpenGraph -->
+  <meta property="al:android:app_name" content="Facebook" />
+  <meta property="al:android:package" content="com.facebook.katana" />
+  <meta property="al:android:url" content="intent://watch/discover/story?id=UzpfSTEwMDA2NDQzNDY1NjU2NTpWSzoyNjQ2OTA4OTA5MDg4Nzgw&amp;feed_injection=1&amp;ref=msite/#Intent;scheme=fb;package=com.facebook.katana;end" />
+  <meta property="al:ios:app_name" content="Facebook" />
+  <meta property="al:ios:app_store_id" content="284882215" />
+  <meta property="al:ios:url" content="fb://watch/discover/story?id=UzpfSTEwMDA2NDQzNDY1NjU2NTpWSzoyNjQ2OTA4OTA5MDg4Nzgw&amp;feed_injection=1&amp;ref=msite" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -173,7 +173,7 @@
           <span id="status-text">Đã copy 6 hashtag! Đang mở Reel cho cậu...</span>
         </div>
         <div class="mt-2.5 space-y-1.5">
-          <a id="manual-fb-link" href="fb://watch/?v=2646908909088780" 
+          <a id="manual-fb-link" href="fb://watch/discover/story?id=UzpfSTEwMDA2NDQzNDY1NjU2NTpWSzoyNjQ2OTA4OTA5MDg4Nzgw&feed_injection=1&ref=msite" 
              class="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition active:scale-95">
             <i data-lucide="play" class="w-3.5 h-3.5 fill-white" aria-hidden="true"></i>
             <span>Mở ngay trong App Facebook</span>
@@ -316,15 +316,23 @@
     }
 
     function openReel() {
-      const reelId = "2646908909088780";
-      const fbWebUrl = `https://www.facebook.com/reel/${reelId}`;
-      const fbAppWatchUrl = `fb://watch/?v=${reelId}`;
+      const fbWebUrl = "https://www.facebook.com/reel/2646908909088780";
+      // Graph ID chính xác từ máy chủ Facebook cho bài dự thi số 10 này
+      const storyId = "UzpfSTEwMDA2NDQzNDY1NjU2NTpWSzoyNjQ2OTA4OTA5MDg4Nzgw";
+      const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
+      const isAndroid = /android/i.test(ua);
 
-      // fb://watch/?v= là giao thức video/reel chính thức của app Facebook (hỗ trợ cả iOS và Android)
-      // Mở thẳng trình phát video/reel chứ không bị rơi về trang chủ
-      window.location.href = fbAppWatchUrl;
+      if (isAndroid) {
+        // Deep link chuẩn từ thẻ OpenGraph của Facebook cho Android
+        const androidIntent = `intent://watch/discover/story?id=${storyId}&feed_injection=1&ref=msite/#Intent;scheme=fb;package=com.facebook.katana;end`;
+        window.location.href = androidIntent;
+      } else {
+        // Deep link chuẩn từ thẻ OpenGraph của Facebook cho iPhone / iOS
+        const iosDeepLink = `fb://watch/discover/story?id=${storyId}&feed_injection=1&ref=msite`;
+        window.location.href = iosDeepLink;
+      }
 
-      // Fallback sang web nếu người dùng không cài app Facebook
+      // Fallback sang web nếu sau 2 giây không vào app
       setTimeout(() => {
         if (document.hasFocus()) {
           window.location.href = fbWebUrl;
