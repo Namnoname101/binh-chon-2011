@@ -4,7 +4,8 @@
 
 const VOTE_CONFIG = {
   contestTitle: "Cuộc Thi 20/11 • UED",
-  facebookPostUrl: "https://www.facebook.com/reel/2646908909088780",
+  // Link share chính thức do Facebook tạo (mở thẳng 100% vào bài thi trong App Facebook)
+  facebookPostUrl: "https://www.facebook.com/share/v/1F17heF8W8/",
   copyContent: `#ThayCoTrongMatEm #TuoiTreUED #UED #TriAnThayCo #NgayNhaGiaoVietNam #ChaoMung2011`,
 };
 

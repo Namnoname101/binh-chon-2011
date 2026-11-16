@@ -169,18 +169,18 @@
       <!-- Status Toast -->
       <div id="status-box" role="status" aria-live="polite" class="hidden mb-3.5 p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs text-center animate-in fade-in zoom-in-95 duration-200">
         <div class="font-black flex items-center justify-center gap-1.5 text-[13px] text-white">
-          <span>🚀</span>
-          <span id="status-text">Đã copy 6 hashtag! Đang mở Reel cho cậu...</span>
+          <span>🎉</span>
+          <span id="status-text">Đã copy 6 hashtag rùi nè!</span>
         </div>
-        <div class="mt-2.5 space-y-1.5">
-          <a id="manual-fb-link" href="fb://watch/discover/story?id=UzpfSTEwMDA2NDQzNDY1NjU2NTpWSzoyNjQ2OTA4OTA5MDg4Nzgw&feed_injection=1&ref=msite" 
+        <p class="text-[11px] text-amber-200 mt-1 font-bold">
+          👉 Nếu Zalo hiện bảng hỏi, cậu bấm <u>[Tiếp tục]</u> để nhảy vào App Facebook nha!
+        </p>
+        <div class="mt-2.5">
+          <a id="manual-fb-link" href="https://www.facebook.com/share/v/1F17heF8W8/" target="_blank" rel="noopener noreferrer" 
              class="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition active:scale-95">
             <i data-lucide="play" class="w-3.5 h-3.5 fill-white" aria-hidden="true"></i>
-            <span>Mở ngay trong App Facebook</span>
+            <span>Bấm vào đây để mở bài Reel</span>
           </a>
-          <p class="text-[10px] text-slate-400">
-            Nếu máy không có App FB: <a href="https://www.facebook.com/reel/2646908909088780" target="_blank" rel="noopener noreferrer" class="text-amber-300 underline font-medium">Bấm vào đây để mở web</a>
-          </p>
         </div>
       </div>
 
@@ -316,28 +316,10 @@
     }
 
     function openReel() {
-      const fbWebUrl = "https://www.facebook.com/reel/2646908909088780";
-      // Graph ID chính xác từ máy chủ Facebook cho bài dự thi số 10 này
-      const storyId = "UzpfSTEwMDA2NDQzNDY1NjU2NTpWSzoyNjQ2OTA4OTA5MDg4Nzgw";
-      const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
-      const isAndroid = /android/i.test(ua);
-
-      if (isAndroid) {
-        // Deep link chuẩn từ thẻ OpenGraph của Facebook cho Android
-        const androidIntent = `intent://watch/discover/story?id=${storyId}&feed_injection=1&ref=msite/#Intent;scheme=fb;package=com.facebook.katana;end`;
-        window.location.href = androidIntent;
-      } else {
-        // Deep link chuẩn từ thẻ OpenGraph của Facebook cho iPhone / iOS
-        const iosDeepLink = `fb://watch/discover/story?id=${storyId}&feed_injection=1&ref=msite`;
-        window.location.href = iosDeepLink;
-      }
-
-      // Fallback sang web nếu sau 2 giây không vào app
-      setTimeout(() => {
-        if (document.hasFocus()) {
-          window.location.href = fbWebUrl;
-        }
-      }, 2000);
+      // Link chia sẻ chuẩn di động từ chính ứng dụng Facebook: https://www.facebook.com/share/v/1F17heF8W8/
+      // Link này tự động kích hoạt Universal Link trên iOS và App Link trên Android để mở thẳng vào đúng bài Reel!
+      const shareUrl = config.facebookPostUrl || "https://www.facebook.com/share/v/1F17heF8W8/";
+      window.location.href = shareUrl;
     }
 
     let clicked = false;
