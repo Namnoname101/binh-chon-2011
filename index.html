@@ -10,6 +10,14 @@
   <meta property="og:image" content="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80">
   <meta name="theme-color" content="#0b0f19">
 
+  <!-- Meta App Links for Facebook Deep Linking -->
+  <meta property="al:ios:url" content="fb://watch/?v=2646908909088780">
+  <meta property="al:ios:app_store_id" content="284882215">
+  <meta property="al:ios:app_name" content="Facebook">
+  <meta property="al:android:url" content="fb://watch/?v=2646908909088780">
+  <meta property="al:android:package" content="com.facebook.katana">
+  <meta property="al:android:app_name" content="Facebook">
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -162,14 +170,17 @@
       <div id="status-box" role="status" aria-live="polite" class="hidden mb-3.5 p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs text-center animate-in fade-in zoom-in-95 duration-200">
         <div class="font-black flex items-center justify-center gap-1.5 text-[13px] text-white">
           <span>🚀</span>
-          <span id="status-text">Đã copy 6 hashtag rùi! Đang mở Reel cho cậu...</span>
+          <span id="status-text">Đã copy 6 hashtag! Đang mở Reel cho cậu...</span>
         </div>
-        <div class="mt-2.5">
-          <a id="manual-fb-link" href="https://www.facebook.com/reel/2646908909088780" target="_blank" rel="noopener noreferrer" 
-             class="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition active:scale-95">
-            <i data-lucide="external-link" class="w-3.5 h-3.5" aria-hidden="true"></i>
-            <span>Bấm vào đây để vào thẳng video Reel</span>
+        <div class="mt-2.5 space-y-1.5">
+          <a id="manual-fb-link" href="fb://watch/?v=2646908909088780" 
+             class="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition active:scale-95">
+            <i data-lucide="play" class="w-3.5 h-3.5 fill-white" aria-hidden="true"></i>
+            <span>Mở ngay trong App Facebook</span>
           </a>
+          <p class="text-[10px] text-slate-400">
+            Nếu máy không có App FB: <a href="https://www.facebook.com/reel/2646908909088780" target="_blank" rel="noopener noreferrer" class="text-amber-300 underline font-medium">Bấm vào đây để mở web</a>
+          </p>
         </div>
       </div>
 
@@ -307,26 +318,18 @@
     function openReel() {
       const reelId = "2646908909088780";
       const fbWebUrl = `https://www.facebook.com/reel/${reelId}`;
-      const fbAppUrl = `fb://reel/${reelId}`;
-      const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
-      const isAndroid = /android/i.test(ua);
+      const fbAppWatchUrl = `fb://watch/?v=${reelId}`;
 
-      if (isAndroid) {
-        // Trên Android: Dùng scheme=fb để Zalo KHÔNG THỂ mở bằng trình duyệt webview trong Zalo
-        // mà bắt buộc phải chuyển sang ứng dụng Facebook
-        const intentFb = `intent://reel/${reelId}#Intent;package=com.facebook.katana;scheme=fb;end`;
-        window.location.href = intentFb;
-      } else {
-        // Trên iPhone (iOS): Gọi trực tiếp giao thức fb://reel/
-        window.location.href = fbAppUrl;
-      }
+      // fb://watch/?v= là giao thức video/reel chính thức của app Facebook (hỗ trợ cả iOS và Android)
+      // Mở thẳng trình phát video/reel chứ không bị rơi về trang chủ
+      window.location.href = fbAppWatchUrl;
 
-      // Fallback chỉ chạy nếu người dùng KHÔNG rời khỏi trang sau 2.5 giây
+      // Fallback sang web nếu người dùng không cài app Facebook
       setTimeout(() => {
         if (document.hasFocus()) {
           window.location.href = fbWebUrl;
         }
-      }, 2500);
+      }, 2000);
     }
 
     let clicked = false;
